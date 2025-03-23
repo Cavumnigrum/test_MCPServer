@@ -1,0 +1,32 @@
+version: "latest"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile_server
+    ports:
+      - "8000:8000"  # Пробрасываем порт сервера на хост
+    environment:
+      - EXCHANGE_API_KEY=${EXCHANGE_API_KEY}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - NEWS_API_KEY=${NEWS_API_KEY}
+    networks:
+      - mcp-network
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile_client
+    environment:
+      - BASE_URL=http://server:8000  # Ссылка на сервер по имени контейнера
+    networks:
+      - mcp-network
+    depends_on:
+      - server  # Клиент запускается после сервера
+    stdin_open: true
+    tty: true
+
+networks:
+  mcp-network:
+    driver: bridge
